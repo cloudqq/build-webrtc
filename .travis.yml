@@ -1,8 +1,0 @@
-matrix:
-  include:
-    - language: cpp
-      os:
-        - windows
-      script:
-        - cmd.exe /C ".travis\build.cmd"
-        - 

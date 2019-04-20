@@ -1,8 +1,42 @@
-IF NOT EXIST depot_tools (
+if not exist depot_tools (
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
 
-set PATH=depot_tools;%PATH%
-set DEPOT_TOOLS_WIN_TOOLCHAIN=depot_tools/win_toolchain
-fetch --nohooks webrtc
-gclient sync --nohooks .
+REM workaround
+set PATH=%PATH:C:\ProgramData\chocolatey\bin;=%
+
+set PATH=%cd%\depot_tools;%PATH%
+set WEBRTC_VERSION=72
+set DEPOT_TOOLS_WIN_TOOLCHAIN=0
+set CPPFLAGS=/WX-
+set GYP_GENERATORS=ninja,msvs-ninja
+set GYP_MSVS_VERSION=2017
+set OUTPUT_DIR=out
+set ARTIFACTS_DIR=%cd%
+
+cmd /k fetch.bat webrtc
+
+cd src
+cmd /k git.bat branch -r
+cmd /k git.bat checkout -b my_branch refs/remotes/branch-heads/%WEBRTC_VERSION%
+cd ..
+
+cmd /k gclient.bat sync
+
+REM change jsoncpp static library
+powershell -File .\ReplaceText.ps1 "src\third_party\jsoncpp\BUILD.gn" "source_set" "static_library"
+
+cmd /k gn.bat gen %OUTPUT_DIR% --root="src" --args="is_debug=false is_clang=false target_cpu=\"x64\" symbol_level=0 enable_iterator_debugging=false"
+
+REM add json.obj in link list of webrtc.ninja
+powershell -File .\ReplaceText.ps1 "%OUTPUT_DIR%\obj\webrtc.ninja" "obj/rtc_base/rtc_base/crc32.obj" "obj/rtc_base/rtc_base/crc32.obj obj/rtc_base/rtc_json/json.obj"
+type "%OUTPUT_DIR%\obj\webrtc.ninja"
+
+ninja.exe -C %OUTPUT_DIR%
+
+REM copy header
+xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
+
+REM copy lib
+mkdir %ARTIFACTS_DIR%\lib
+for %%G in (webrtc.lib audio_decoder_opus.lib webrtc_opus.lib jsoncpp.lib) do forfiles /P "%cd%\%OUTPUT_DIR%" /S /M %%G /C "cmd /c copy @path %ARTIFACTS_DIR%\lib"
