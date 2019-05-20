@@ -32,14 +32,7 @@ REM add json.obj in link list of webrtc.ninja
 powershell -File .\ReplaceText.ps1 "%OUTPUT_DIR%\obj\webrtc.ninja" "obj/rtc_base/rtc_base/crc32.obj" "obj/rtc_base/rtc_base/crc32.obj obj/rtc_base/rtc_json/json.obj"
 type "%OUTPUT_DIR%\obj\webrtc.ninja"
 
-REM update LIB_TO_LICENSES_DICT in generate_licenses.py
-powershell -File .\ReplaceText.ps1 "src\tools_webrtc\libs\generate_licenses.py" "'ow2_asm': []," "'ow2_asm': [], 'googletest': ['third_party/googletest/src/LICENSE'], 'nasm': ['third_party/nasm/LICENSE'],"
-type "src\tools_webrtc\libs\generate_licenses.py"
-
 ninja.exe -C %OUTPUT_DIR%
-
-REM generate license
-python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
 
 REM copy header
 xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
@@ -47,6 +40,3 @@ xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
 REM copy lib
 mkdir %ARTIFACTS_DIR%\lib
 for %%G in (webrtc.lib audio_decoder_opus.lib webrtc_opus.lib jsoncpp.lib) do forfiles /P "%cd%\%OUTPUT_DIR%" /S /M %%G /C "cmd /c copy @path %ARTIFACTS_DIR%\lib"
-
-REM copy license
-copy %OUTPUT_DIR%\LICENSE.md %ARTIFACTS_DIR%
