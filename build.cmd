@@ -41,6 +41,9 @@ ninja.exe -C %OUTPUT_DIR%
 REM generate license
 call python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
 
+REM unescape license
+powershell -File .\Unescape.ps1 %OUTPUT_DIR%\LICENSE.md			
+
 REM copy header
 xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
 
