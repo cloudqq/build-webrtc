@@ -39,7 +39,7 @@ type "src\tools_webrtc\libs\generate_licenses.py"
 ninja.exe -C %OUTPUT_DIR%
 
 REM generate license
-python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
+call python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
 
 REM copy header
 xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
