@@ -20,6 +20,7 @@ set ARTIFACTS_DIR=%cd%
 cmd /k fetch.bat webrtc
 
 cd src
+cmd /k git.bat config core.longpaths true
 cmd /k git.bat branch -r
 cmd /k git.bat checkout -b my_branch refs/remotes/branch-heads/%WEBRTC_VERSION%
 cd ..
