@@ -1,3 +1,6 @@
+mkdir build
+cd build
+
 if not exist depot_tools (
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
@@ -24,16 +27,16 @@ cd ..
 cmd /k gclient.bat sync
 
 REM change jsoncpp static library
-powershell -File .\ReplaceText.ps1 "src\third_party\jsoncpp\BUILD.gn" "source_set" "static_library"
+powershell -File ..\ReplaceText.ps1 "src\third_party\jsoncpp\BUILD.gn" "source_set" "static_library"
 
 cmd /k gn.bat gen %OUTPUT_DIR% --root="src" --args="is_debug=false is_clang=false target_cpu=\"x64\" symbol_level=0 enable_iterator_debugging=false"
 
 REM add json.obj in link list of webrtc.ninja
-powershell -File .\ReplaceText.ps1 "%OUTPUT_DIR%\obj\webrtc.ninja" "obj/rtc_base/rtc_base/crc32.obj" "obj/rtc_base/rtc_base/crc32.obj obj/rtc_base/rtc_json/json.obj"
+powershell -File ..\ReplaceText.ps1 "%OUTPUT_DIR%\obj\webrtc.ninja" "obj/rtc_base/rtc_base/crc32.obj" "obj/rtc_base/rtc_base/crc32.obj obj/rtc_base/rtc_json/json.obj"
 type "%OUTPUT_DIR%\obj\webrtc.ninja"
 
 REM update LIB_TO_LICENSES_DICT in generate_licenses.py
-powershell -File .\ReplaceText.ps1 "src\tools_webrtc\libs\generate_licenses.py" "'ow2_asm': []," "'ow2_asm': [], 'winsdk_samples': [], 'googletest': ['third_party/googletest/src/LICENSE'], 'nasm': ['third_party/nasm/LICENSE'], "
+powershell -File ..\ReplaceText.ps1 "src\tools_webrtc\libs\generate_licenses.py" "'ow2_asm': []," "'ow2_asm': [], 'winsdk_samples': [], 'googletest': ['third_party/googletest/src/LICENSE'], 'nasm': ['third_party/nasm/LICENSE'], "
 type "src\tools_webrtc\libs\generate_licenses.py"
 
 ninja.exe -C %OUTPUT_DIR%
@@ -42,7 +45,7 @@ REM generate license
 call python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
 
 REM unescape license
-powershell -File .\Unescape.ps1 %OUTPUT_DIR%\LICENSE.md			
+powershell -File ..\Unescape.ps1 %OUTPUT_DIR%\LICENSE.md
 
 REM copy header
 xcopy src\*.h %ARTIFACTS_DIR%\include /C /S /I /F /H
