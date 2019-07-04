@@ -2,6 +2,7 @@ mkdir build
 cd build
 
 if not exist depot_tools (
+git config core.longpaths true
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
 
