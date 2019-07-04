@@ -2,7 +2,7 @@ mkdir build
 cd build
 
 if not exist depot_tools (
-git config core.longpaths true
+git config --system core.longpaths true
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
 
@@ -21,7 +21,7 @@ set ARTIFACTS_DIR=%cd%
 cmd /k fetch.bat webrtc
 
 cd src
-cmd /k git.bat config core.longpaths true
+cmd /k git.bat config --system core.longpaths true
 cmd /k git.bat branch -r
 cmd /k git.bat checkout -b my_branch refs/remotes/branch-heads/%WEBRTC_VERSION%
 cd ..
